@@ -7,7 +7,6 @@ import sqlite3
 from datetime import datetime, date
 from dotenv import load_dotenv
 from aiohttp import web
-
 from aiogram import Bot, Dispatcher, html, F
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
@@ -19,6 +18,8 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from thefuzz import process
 import dateparser
 
+from aiogram.types import InlineKeyboardMarkup,InlineKeyboardButton, CallbackQuery
+
 # --- AYARLAR ---
 load_dotenv()
 TOKEN = os.getenv("BOT_TOKEN")
@@ -27,9 +28,25 @@ ADMIN_ID = os.getenv("ADMIN_ID")
 # --- LOGLAMA ---
 logging.basicConfig(level=logging.INFO, stream=sys.stdout)
 bot = Bot(token=TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
+# --- DİL AYARLARI ---
+USER_LANGUAGES = {}  # Kullanıcı dili tutma geçici
+
+MESSAGES = {
+    "TR": {
+        "welcome": "Merhaba! Ben Pera. Lütfen bir dil seçin:",
+        "selected": "Harika! Türkçe devam ediyorum. 🇹🇷\n\nSana nasıl yardımcı olabilirim?",
+        "menu": "Menü"
+    },
+    "EN": {
+        "welcome": "Hello! I am Pera. Please select a language:",
+        "selected": "Great! Switching to English. 🇬🇧\n\nHow can I help you?",
+        "menu": "Menu"
+    }
+}
 dp = Dispatcher()
 scheduler = AsyncIOScheduler()
 DB_NAME = "pera.db"
+
 
 # --- VERİTABANI ---
 def init_db():
@@ -166,10 +183,32 @@ def get_confirmation_keyboard():
 
 # --- İŞLEYİCİLER ---
 
-@dp.message(CommandStart())
-async def command_start_handler(message: Message):
-    if str(message.from_user.id) != str(ADMIN_ID): return
-    await message.answer(f"Selam {message.from_user.first_name}, ben Pera (V8).\nBrifing sistemim aktif! Her sabah 07:00'de rapor vereceğim.")
+@dp.message(Command("start"))
+async def cmd_start(message: Message):
+    # Dil seçimi için butonlar
+    keyboard = InlineKeyboardMarkup(inline_keyboard=[
+        [
+            InlineKeyboardButton(text="🇹🇷 Türkçe", callback_data="lang_tr"),
+            InlineKeyboardButton(text="🇬🇧 English", callback_data="lang_en")
+        ]
+    ])
+    await message.answer(
+        "👋 Welcome / Merhaba!\n\nPlease select your language / Lütfen dil seçimi yapınız:", 
+        reply_markup=keyboard
+    )
+
+@dp.callback_query(lambda c: c.data.startswith("lang_"))
+async def process_language_selection(callback_query: CallbackQuery):
+    lang_code = "TR" if callback_query.data == "lang_tr" else "EN"
+    user_id = callback_query.from_user.id
+    
+    # Seçimi kaydet
+    USER_LANGUAGES[user_id] = lang_code
+    
+    # Onay mesajı gönder
+    response_text = MESSAGES[lang_code]["selected"]
+    await callback_query.message.answer(response_text)
+    await callback_query.answer()  # Yükleniyor ikonunu kaldır
 
 @dp.message(Command("plans"))
 async def list_plans(message: Message):
@@ -284,7 +323,7 @@ async def main():
     scheduler.start()
     print("Pera (V8) - Sabah Brifingi ve Full Asistan Modu Aktif...")
 
-    # Devamlı Aktif Mod (bot ve sunucuuyu aynı anda ac)
+    # Devamlı Aktif Mod (bot ve sunucuuyu aynı anda a)
     await asyncio.gather(
         dp.start_polling(bot),
         start_server()
