@@ -182,7 +182,7 @@ def get_confirmation_keyboard():
     return InlineKeyboardMarkup(inline_keyboard=buttons)
 
 # --- Yönetici Komutları ---
-@dp.message(Command("Yönetici"))
+@dp.message(Command("yonetici"))
 async def cmd_admin_panel(message:Message):
     if str(message.from_user.id) != str(ADMIN_ID):
         await message.answer("⛔ Unauthorized Access")
