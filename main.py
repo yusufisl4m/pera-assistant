@@ -34,12 +34,12 @@ USER_LANGUAGES = {}  # Kullanıcı dili tutma geçici
 MESSAGES = {
     "TR": {
         "welcome": "Merhaba! Ben Pera. Lütfen bir dil seçin:",
-        "selected": "Harika! Türkçe devam ediyorum. 🇹🇷\n\nSana nasıl yardımcı olabilirim?",
+        "selected": "Harika! Türkçe devam ediyorum. 🇹🇷\n\nMerhaba! Lütfen planlamak istediğiniz zamanları ve mesajları giriniz. 😊 ",
         "menu": "Menü"
     },
     "EN": {
         "welcome": "Hello! I am Pera. Please select a language:",
-        "selected": "Great! Switching to English. 🇬🇧\n\nHow can I help you?",
+        "selected": "Great! Switching to English. 🇬🇧\n\nHi! Please enter the times and messages you want to schedule. 😊",
         "menu": "Menu"
     }
 }
