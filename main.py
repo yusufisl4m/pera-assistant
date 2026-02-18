@@ -6,6 +6,7 @@ import re
 import sqlite3
 from datetime import datetime, date
 from dotenv import load_dotenv
+from aiohttp import web
 
 from aiogram import Bot, Dispatcher, html, F
 from aiogram.client.default import DefaultBotProperties
@@ -261,17 +262,33 @@ async def load_tasks_on_startup():
     except: pass
     conn.close()
 
+async def health_check(request):
+    return web.Response(text="Pera is alive and kicking! 🚀")
+
+async def start_server():
+    app = web.Application()
+    app.add_routes([web.get('/', health_check)])
+    runner = web.AppRunner(app)
+    await runner.setup()
+    port = int(os.getenv("PORT", 8080))
+    site = web.TCPSite(runner, '0.0.0.0', port)
+    await site.start()
+
 async def main():
     init_db()
     await load_tasks_on_startup()
     
-        # Her gün saat 07:00'de 'send_morning_briefing' fonksiyonunu çalıştır
     if ADMIN_ID:
         scheduler.add_job(send_morning_briefing, 'cron', hour=7, minute=0, args=[int(ADMIN_ID)], id='morning_briefing', replace_existing=True)
     
     scheduler.start()
     print("Pera (V8) - Sabah Brifingi ve Full Asistan Modu Aktif...")
-    await dp.start_polling(bot)
+
+    # Devamlı Aktif Mod (bot ve sunucuuyu aynı anda ac)
+    await asyncio.gather(
+        dp.start_polling(bot),
+        start_server()
+    )
 
 if __name__ == "__main__":
     try: asyncio.run(main())
