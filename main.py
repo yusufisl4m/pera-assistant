@@ -188,12 +188,12 @@ async def cmd_admin_panel(message:Message):
         await message.answer("⛔ Unauthorized Access")
         return
         
-        await message.answer(
-        "👮‍♂️ **Yönetici Paneli**\n\n"
-        "✅ Sistem: Aktif\n"
-        "🟢 Bot Durumu: Çalışıyor\n"
-        "📅 Tarih: " + str(message.date)
-    )
+    await message.answer(
+    "👮‍♂️ **Yönetici Paneli**\n\n"
+    "✅ Sistem: Aktif\n"
+    "🟢 Bot Durumu: Çalışıyor\n"
+    "📅 Tarih: " + str(message.date)
+)
 
 # --- İŞLEYİCİLER ---
 
