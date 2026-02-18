@@ -181,6 +181,20 @@ def get_confirmation_keyboard():
     buttons = [[InlineKeyboardButton(text="✅ Onayla ve Kur", callback_data="confirm_plan"), InlineKeyboardButton(text="❌ İptal Et", callback_data="cancel_plan")]]
     return InlineKeyboardMarkup(inline_keyboard=buttons)
 
+# --- Yönetici Komutları ---
+@dp.message(Command("Yönetici"))
+async def cmd_admin_panel(message:Message):
+    if str(message.from_user.id) != str(ADMIN_ID):
+        await message.answer("⛔ Unauthorized Access")
+        return
+        
+        await message.answer(
+        "👮‍♂️ **Yönetici Paneli**\n\n"
+        "✅ Sistem: Aktif\n"
+        "🟢 Bot Durumu: Çalışıyor\n"
+        "📅 Tarih: " + str(message.date)
+    )
+
 # --- İŞLEYİCİLER ---
 
 @dp.message(Command("start"))
